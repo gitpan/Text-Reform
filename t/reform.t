@@ -8,24 +8,29 @@
 # Change 1..1 below to 1..last_test_to_print .
 # (It may become useful if the test is moved to ./t subdirectory.)
 
-BEGIN { $| = 1; print "1..66\n"; }
-END {print "not ok 1\n" unless $loaded;}
-my $testnum = 1;
-use Data::Dumper 'Dumper';
-sub teststr(&$) # (&sub, $retval)
-{
-	do { $testnum++;
-	     my $res = &{$_[0]};
-	     my $exp = $_[1];
-         s/ /./g for $res, $exp;
-	     print "expected [", $exp, "]\n" unless $res eq $exp;
-	     print "but got  [", $res, "]\n" unless $res eq $exp;
-	     print "not " unless $res eq $exp;
-	     print "ok $testnum\n"; };
+use Test::More tests => 66;
+BEGIN {
+  use_ok( 'Text::Reform', qw{ form tag break_at break_wrap break_with });
 }
-use Text::Reform qw{ form tag break_at break_wrap break_with };
-$loaded = 1;
-print "ok 1\n";
+#my $testnum = 1;
+#use Data::Dumper 'Dumper';
+sub teststr(&$;$) # (&sub, $retval)
+{
+	do { #$testnum++;
+	     my $res = &{$_[0]};
+  	     my $exp = $_[1];
+  	     my $message=$_[2];
+             s/ /./g for $res, $exp;
+             if ($res eq $exp) {
+               ok(1,$message);
+               #print "ok $testnum\n";
+             } else {
+	       diag "expected [", $exp, "]";
+	       diag "but got  [", $res, "]";
+	       ok(0,$message);
+	     }
+ 	   };
+}
 
 ######################### End of black magic.
 
@@ -107,7 +112,7 @@ teststr { form('{]]]]}',[qw(1 10 100 1000 10000)]) }
 {1000}
 {100-}
 {  00}
-';
+',q/form('{]]]]}',[qw(1 10 100 1000 10000)])/;
 
 teststr { form('{]]].[[}',[qw(1 10 100 1000 10000)]) }
 '{  1.0 }
@@ -115,7 +120,7 @@ teststr { form('{]]].[[}',[qw(1 10 100 1000 10000)]) }
 {100.0 }
 {###.##}
 {###.##}
-';
+',q/form('{]]].[[}',[qw(1 10 100 1000 10000)])/;
 
 my @data = qw( 1 10 100 1000 );
 teststr { form('{]]]]}',\@data) }

@@ -1,12 +1,22 @@
-# http://module-build.sourceforge.net/META-spec.html
-#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
-name:         Text-Reform
-version:      v1.12.2
-version_from: lib/Text/Reform.pm
-installdirs:  site
+---
+name: Text-Reform
+version: 1.20
+author:
+  - 'Damian Conway <DCONWAY@CPAN.org>'
+abstract: Manual text wrapping and reformatting
+license: perl
+resources:
+  license: http://dev.perl.org/licenses/
 requires:
-    Test::More:                    0
-    version:                       0
-
-distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.17
+  Exporter: 0
+  perl: 5.005
+build_requires:
+  Test::More: 0
+provides:
+  Text::Reform:
+    file: lib/Text/Reform.pm
+    version: 1.20
+generated_by: Module::Build version 0.33
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4

@@ -2,7 +2,8 @@ package Text::Reform;
 
 use strict; use vars qw($VERSION @ISA @EXPORT @EXPORT_OK); use Carp;
 use 5.005;
-use version; $VERSION = qv('1.12.2');
+#use version;
+$VERSION = '1.20';
 
 require Exporter;
 
@@ -24,8 +25,8 @@ my $emptyref = '';
 
 sub import
 {
-	use POSIX qw( localeconv );
-	$decimal = localeconv()->{decimal_point} || '.';
+	#$decimal = localeconv()->{decimal_point} || '.';
+	$decimal = '.';
 
 	my $lnumerical = '[>]+(?:'.quotemeta($decimal).'[<]{1,})';
 	my $bnumerical = '[]]+(?:'.quotemeta($decimal).'[[]{1,})';
@@ -80,7 +81,7 @@ sub break_with
 sub break_at {
 	my ($hyphen, $opts_ref) = @_;
 	my $hylen = length($hyphen);
-    my $except = $opts_ref->{except};
+	my $except = $opts_ref->{except};
 	my @ret;
 	sub
 	{
@@ -151,6 +152,17 @@ sub notempty
 	return $ne;
 }
 
+sub strtod1 {
+  my $n=shift;
+  my $real_re='((?:[+-]?)(?:(?=[0123456789]|[.])(?:[0123456789]*)(?:(?:[.])(?:[0123456789]{0,}))?)'.
+  '(?:(?:[eE])(?:(?:[+-]?)(?:[0123456789]+))|))';
+  if ($n=~/^\s*$real_re(.*)$/os) {
+    return ($1,length($2 || ''));
+  } else {
+    return (undef,length($n));
+  }
+}
+
 sub replace($$$$)   # ($fmt, $len, $argref, $config)
 {
 	my $ref = $_[2];
@@ -167,9 +179,9 @@ sub replace($$$$)   # ($fmt, $len, $argref, $config)
 	if ($$ref =~ /\S/ && $fmtnum>2)
 	{
 	NUMERICAL:{
-		use POSIX qw( strtod );
 		my ($ilen,$dlen) = map {length} $_[0] =~ m/([]>]+)\Q$decimal\E([[<]+)/;
-		my ($num,$unconsumed) = strtod($$ref);
+		my ($num,$unconsumed) = strtod1($$ref);
+
 		if ($unconsumed == length $$ref)
 		{
 			$$ref =~ s/\s*\S*//;
@@ -732,8 +744,8 @@ Text::Reform - Manual text wrapping and reformatting
 
 =head1 VERSION
 
-This document describes version 1.11 of Text::Reform,
-released May  7, 2003.
+This document describes version 1.20 of Text::Reform,
+released 2009-09-06.
 
 =head1 SYNOPSIS
 
@@ -999,7 +1011,7 @@ look-up table:
         \@values, \@squares, \@roots, \@logs, \@inverses;
 
 The multiline format specifier:
-        
+
         "| [[  |  [[[  |  [[[[[[[[[[ | [[[[[[[[[ | [[[[[[[[[ |
         -----------------------------------------------------",
 
@@ -1440,7 +1452,7 @@ numeric values about a fixed decimal place marker. For example:
         EONUMS
 
 would print:
-                   
+
         (    1.0 )
         (    1.0 )
         (    1.00)
@@ -1466,7 +1478,7 @@ by giving the configuration option 'numeric' a value that matches
         EONUMS
 
 would print:
-                   
+
         (    1.00)
         (    1.00)
 
@@ -1491,7 +1503,7 @@ ignored. For example:
         EONUMS
 
 would print:
-                   
+
         (    1.0 )
         (    4.0 )
 
